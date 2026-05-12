@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="th" data-theme="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Discrete Math Studio By KC</title>
+    <meta name="description" content="Interactive Discrete Mathematics Learning & Calculator">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="app">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <span class="logo-icon">∑</span>
+                    <span class="logo-text">Discrete<br>Math Studio</span>
+                </div>
+                <div class="sidebar-actions">
+                    <button class="icon-btn" id="btn-theme" title="Toggle Theme">🌙</button>
+                    <button class="icon-btn" id="btn-export" title="Export Results">📥</button>
+                </div>
+            </div>
+            <nav class="nav">
+                <div class="nav-group-label">Overview</div>
+                <button class="nav-item active" data-section="home" id="nav-home">
+                    <span class="nav-icon">🏠</span><span class="nav-label">หน้าหลัก</span>
+                </button>
+
+                <div class="nav-group-label">Discrete Math</div>
+                <button class="nav-item" data-section="logic" id="nav-logic">
+                    <span class="nav-icon">🔗</span><span class="nav-label">Logic & Truth Tables</span>
+                </button>
+                <button class="nav-item" data-section="sets" id="nav-sets">
+                    <span class="nav-icon">📐</span><span class="nav-label">Set Theory</span>
+                </button>
+                <button class="nav-item" data-section="combinatorics" id="nav-combinatorics">
+                    <span class="nav-icon">🎲</span><span class="nav-label">Combinatorics</span>
+                </button>
+                <button class="nav-item" data-section="number-theory" id="nav-number-theory">
+                    <span class="nav-icon">🔢</span><span class="nav-label">Number Theory</span>
+                </button>
+                <button class="nav-item" data-section="relations" id="nav-relations">
+                    <span class="nav-icon">↔️</span><span class="nav-label">Relations</span>
+                </button>
+                <button class="nav-item" data-section="graph" id="nav-graph">
+                    <span class="nav-icon">🕸️</span><span class="nav-label">Graph Visualizer</span>
+                </button>
+                <button class="nav-item" data-section="boolean" id="nav-boolean">
+                    <span class="nav-icon">⊕</span><span class="nav-label">Boolean Algebra</span>
+                </button>
+
+                <div class="nav-group-label">Digital Logic (4121501)</div>
+                <button class="nav-item" data-section="kmap" id="nav-kmap">
+                    <span class="nav-icon">🗺️</span><span class="nav-label">K-Map Solver</span>
+                </button>
+                <button class="nav-item" data-section="gates" id="nav-gates">
+                    <span class="nav-icon">⚡</span><span class="nav-label">Logic Gate Simulator</span>
+                </button>
+                <button class="nav-item" data-section="converter" id="nav-converter">
+                    <span class="nav-icon">🔄</span><span class="nav-label">Number Converter</span>
+                </button>
+
+                <div class="nav-group-label">Simulation</div>
+                <button class="nav-item" data-section="sandbox" id="nav-sandbox">
+                    <span class="nav-icon">🧪</span><span class="nav-label">Code Sandbox</span>
+                </button>
+            </nav>
+        </aside>
+
+        <main class="main" id="main-content">
+            <!-- HOME -->
+            <section class="section active" id="section-home">
+                <div class="hero">
+                    <h1 class="hero-title">Discrete Math <span class="gradient-text">Studio</span></h1>
+                    <p class="hero-sub">เรียนรู้และคำนวณคณิตศาสตร์ดิสครีตแบบ Interactive</p>
+                </div>
+                <div class="cards-grid">
+                    <div class="topic-card" data-goto="logic">
+                        <div class="card-icon">🔗</div>
+                        <h3>Logic & Truth Tables</h3>
+                        <p>ตรรกศาสตร์ ตารางค่าความจริง</p>
+                    </div>
+                    <div class="topic-card" data-goto="sets">
+                        <div class="card-icon">📐</div>
+                        <h3>Set Theory</h3>
+                        <p>Union, Intersection, Power Set</p>
+                    </div>
+                    <div class="topic-card" data-goto="combinatorics">
+                        <div class="card-icon">🎲</div>
+                        <h3>Combinatorics</h3>
+                        <p>Permutation, Combination</p>
+                    </div>
+                    <div class="topic-card" data-goto="number-theory">
+                        <div class="card-icon">🔢</div>
+                        <h3>Number Theory</h3>
+                        <p>GCD, LCM, Euler's Totient</p>
+                    </div>
+                    <div class="topic-card" data-goto="relations">
+                        <div class="card-icon">↔️</div>
+                        <h3>Relations</h3>
+                        <p>Reflexive, Symmetric, Transitive</p>
+                    </div>
+                    <div class="topic-card" data-goto="graph">
+                        <div class="card-icon">🕸️</div>
+                        <h3>Graph Visualizer</h3>
+                        <p>Interactive Canvas Graph Editor</p>
+                    </div>
+                    <div class="topic-card" data-goto="boolean">
+                        <div class="card-icon">⊕</div>
+                        <h3>Boolean Algebra</h3>
+                        <p>Boolean Laws & Evaluation</p>
+                    </div>
+                    <div class="topic-card highlight-card" data-goto="kmap">
+                        <div class="card-icon">🗺️</div>
+                        <h3>K-Map Solver</h3>
+                        <p>Karnaugh Map Minimizer</p>
+                    </div>
+                    <div class="topic-card highlight-card" data-goto="gates">
+                        <div class="card-icon">⚡</div>
+                        <h3>Logic Gate Simulator</h3>
+                        <p>Interactive Gate Sandbox</p>
+                    </div>
+                    <div class="topic-card highlight-card" data-goto="converter">
+                        <div class="card-icon">🔄</div>
+                        <h3>Number Converter</h3>
+                        <p>Bin/Oct/Dec/Hex Converter</p>
+                    </div>
+                    <div class="topic-card sandbox-card" data-goto="sandbox">
+                        <div class="card-icon">🧪</div>
+                        <h3>Simulation Sandbox</h3>
+                        <p>JS / Python / Lua Multi-Language IDE</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- LOGIC -->
+            <section class="section" id="section-logic">
+                <h1 class="section-title">🔗 Logic & Truth Tables</h1>
+                <div class="learn-box">
+                    <h2>📖 ทฤษฎี</h2>
+                    <div class="theory-content">
+                        <p><strong>Propositional Logic</strong> คือการศึกษาประพจน์ที่มีค่า TRUE หรือ FALSE</p>
+                        <div class="formula-grid">
+                            <div class="formula-card"><strong>AND (∧)</strong><br>T∧T=T, อื่นๆ=F</div>
+                            <div class="formula-card"><strong>OR (∨)</strong><br>F∨F=F, อื่นๆ=T</div>
+                            <div class="formula-card"><strong>NOT (¬)</strong><br>¬T=F, ¬F=T</div>
+                            <div class="formula-card"><strong>IMPLIES (→)</strong><br>T→F=F, อื่นๆ=T</div>
+                            <div class="formula-card"><strong>IFF (↔)</strong><br>เหมือนกัน=T, ต่าง=F</div>
+                            <div class="formula-card"><strong>XOR (⊕)</strong><br>ต่างกัน=T, เหมือน=F</div>
+                        </div>
+                        <h3>กฎสำคัญ</h3>
+                        <ul>
+                            <li><strong>De Morgan:</strong> ¬(p∧q) ≡ ¬p∨¬q</li>
+                            <li><strong>Contrapositive:</strong> p→q ≡ ¬q→¬p</li>
+                            <li><strong>Double Negation:</strong> ¬(¬p) ≡ p</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="calc-box" id="exportable-logic">
+                    <h2>🧮 Truth Table Generator</h2>
+                    <div class="input-row">
+                        <div class="input-group"><label>ตัวแปร</label><select id="logic-vars">
+                                <option value="2">2 (p,q)</option>
+                                <option value="3">3 (p,q,r)</option>
+                            </select></div>
+                        <div class="input-group"><label>Operation</label><select id="logic-op">
+                                <option value="AND">AND (∧)</option>
+                                <option value="OR">OR (∨)</option>
+                                <option value="NOT">NOT (¬p)</option>
+                                <option value="IMPLIES">IMPLIES (→)</option>
+                                <option value="IFF">IFF (↔)</option>
+                                <option value="XOR">XOR (⊕)</option>
+                                <option value="NAND">NAND</option>
+                                <option value="NOR">NOR</option>
+                            </select></div>
+                    </div>
+                    <button class="btn-calc" onclick="calcLogic()">สร้างตาราง</button>
+                    <button class="btn-export" onclick="exportSection('exportable-logic')">📥 Export</button>
+                    <div class="result" id="result-logic"></div>
+                </div>
+            </section>
+
+            <!-- SETS -->
+            <section class="section" id="section-sets">
+                <h1 class="section-title">📐 Set Theory</h1>
+                <div class="learn-box">
+                    <h2>📖 ทฤษฎี</h2>
+                    <div class="theory-content">
+                        <div class="formula-grid">
+                            <div class="formula-card"><strong>A∪B</strong><br>สมาชิกที่อยู่ใน A หรือ B</div>
+                            <div class="formula-card"><strong>A∩B</strong><br>สมาชิกที่อยู่ทั้ง A และ B</div>
+                            <div class="formula-card"><strong>A−B</strong><br>อยู่ใน A แต่ไม่ใน B</div>
+                            <div class="formula-card"><strong>P(A)</strong><br>Power Set, |P(A)|=2^|A|</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="calc-box" id="exportable-sets">
+                    <h2>🧮 Set Calculator</h2>
+                    <div class="input-group"><label>เซต A</label><input type="text" id="set-a"
+                            placeholder="1, 2, 3, 4, 5"></div>
+                    <div class="input-group"><label>เซต B</label><input type="text" id="set-b"
+                            placeholder="3, 4, 5, 6, 7"></div>
+                    <div class="input-group"><label>Operation</label><select id="set-op">
+                            <option value="union">Union (A∪B)</option>
+                            <option value="intersect">Intersection (A∩B)</option>
+                            <option value="diff">Difference (A−B)</option>
+                            <option value="symdiff">Symmetric Diff (A△B)</option>
+                            <option value="cartesian">Cartesian (A×B)</option>
+                            <option value="powerset">Power Set P(A)</option>
+                            <option value="subset">A⊆B ?</option>
+                        </select></div>
+                    <button class="btn-calc" onclick="calcSets()">คำนวณ</button>
+                    <button class="btn-export" onclick="exportSection('exportable-sets')">📥 Export</button>
+                    <div class="result" id="result-sets"></div>
+                </div>
+            </section>
+
+            <!-- COMBINATORICS -->
+            <section class="section" id="section-combinatorics">
+                <h1 class="section-title">🎲 Combinatorics</h1>
+                <div class="learn-box">
+                    <h2>📖 ทฤษฎี</h2>
+                    <div class="theory-content">
+                        <div class="formula-grid">
+                            <div class="formula-card"><strong>n!</strong><br>n×(n-1)×...×1</div>
+                            <div class="formula-card"><strong>P(n,r)</strong><br>n!/(n-r)!</div>
+                            <div class="formula-card"><strong>C(n,r)</strong><br>n!/[r!(n-r)!]</div>
+                            <div class="formula-card"><strong>Binomial</strong><br>(a+b)ⁿ = Σ C(n,k)aⁿ⁻ᵏbᵏ</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="calc-box" id="exportable-comb">
+                    <h2>🧮 Calculator</h2>
+                    <div class="input-row">
+                        <div class="input-group"><label>n</label><input type="number" id="comb-n" value="5" min="0"
+                                max="170"></div>
+                        <div class="input-group"><label>r</label><input type="number" id="comb-r" value="3" min="0"
+                                max="170"></div>
+                        <div class="input-group"><label>Operation</label><select id="comb-op">
+                                <option value="factorial">n!</option>
+                                <option value="perm">P(n,r)</option>
+                                <option value="comb">C(n,r)</option>
+                                <option value="binomial">Binomial (1+x)ⁿ</option>
+                            </select></div>
+                    </div>
+                    <button class="btn-calc" onclick="calcCombinatorics()">คำนวณ</button>
+                    <button class="btn-export" onclick="exportSection('exportable-comb')">📥 Export</button>
+                    <div class="result" id="result-comb"></div>
+                </div>
+            </section>
+
+            <!-- NUMBER THEORY -->
+            <section class="section" id="section-number-theory">
+                <h1 class="section-title">🔢 Number Theory</h1>
+                <div class="learn-box">
+                    <h2>📖 ทฤษฎี</h2>
+                    <div class="theory-content">
+                        <div class="formula-grid">
+                            <div class="formula-card"><strong>GCD</strong><br>Euclidean Algorithm</div>
+                            <div class="formula-card"><strong>LCM</strong><br>|a·b|/GCD(a,b)</div>
+                            <div class="formula-card"><strong>φ(n)</strong><br>Euler's Totient</div>
+                            <div class="formula-card"><strong>Prime</strong><br>Factorization</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="calc-box" id="exportable-nt">
+                    <h2>🧮 Calculator</h2>
+                    <div class="input-row">
+                        <div class="input-group"><label>a</label><input type="number" id="nt-a" value="48"></div>
+                        <div class="input-group"><label>b</label><input type="number" id="nt-b" value="18"></div>
+                        <div class="input-group"><label>Operation</label><select id="nt-op">
+                                <option value="gcd">GCD(a,b)</option>
+                                <option value="lcm">LCM(a,b)</option>
+                                <option value="mod">a mod b</option>
+                                <option value="totient">φ(a)</option>
+                                <option value="prime">Is Prime?</option>
+                                <option value="factor">Factorization</option>
+                            </select></div>
+                    </div>
+                    <button class="btn-calc" onclick="calcNumberTheory()">คำนวณ</button>
+                    <button class="btn-export" onclick="exportSection('exportable-nt')">📥 Export</button>
+                    <div class="result" id="result-nt"></div>
+                </div>
+            </section>
+
+            <!-- RELATIONS -->
+            <section class="section" id="section-relations">
+                <h1 class="section-title">↔️ Relations</h1>
+                <div class="learn-box">
+                    <h2>📖 ทฤษฎี</h2>
+                    <div class="theory-content">
+                        <div class="formula-grid">
+                            <div class="formula-card"><strong>Reflexive</strong><br>∀a: (a,a)∈R</div>
+                            <div class="formula-card"><strong>Symmetric</strong><br>(a,b)∈R→(b,a)∈R</div>
+                            <div class="formula-card"><strong>Transitive</strong><br>(a,b)∧(b,c)→(a,c)∈R</div>
+                            <div class="formula-card"><strong>Equivalence</strong><br>Refl+Sym+Trans</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="calc-box" id="exportable-rel">
+                    <h2>🧮 Relation Checker</h2>
+                    <div class="input-group"><label>เซต A</label><input type="text" id="rel-set" placeholder="1, 2, 3">
+                    </div>
+                    <div class="input-group"><label>Relation R (เช่น 1,1;2,2;3,3;1,2)</label><input type="text"
+                            id="rel-pairs" placeholder="1,1;2,2;3,3;1,2;2,1"></div>
+                    <button class="btn-calc" onclick="calcRelations()">ตรวจสอบ</button>
+                    <button class="btn-export" onclick="exportSection('exportable-rel')">📥 Export</button>
+                    <div class="result" id="result-rel"></div>
+                </div>
+            </section>
+
+            <!-- GRAPH VISUALIZER -->
+            <section class="section" id="section-graph">
+                <h1 class="section-title">🕸️ Interactive Graph Visualizer</h1>
+                <div class="calc-box">
+                    <div class="graph-toolbar">
+                        <button class="tool-btn active" id="tool-node" onclick="setGraphTool('node')">➕ Add
+                            Node</button>
+                        <button class="tool-btn" id="tool-edge" onclick="setGraphTool('edge')">🔗 Add Edge</button>
+                        <button class="tool-btn" id="tool-move" onclick="setGraphTool('move')">✋ Move</button>
+                        <button class="tool-btn" id="tool-delete" onclick="setGraphTool('delete')">🗑️ Delete</button>
+                        <button class="tool-btn" onclick="clearGraph()">🧹 Clear</button>
+                        <button class="btn-export" onclick="exportCanvas()">📥 Export PNG</button>
+                    </div>
+                    <canvas id="graph-canvas" width="900" height="500"></canvas>
+                    <div class="graph-info" id="graph-info"></div>
+                </div>
+            </section>
+
+            <!-- BOOLEAN -->
+            <section class="section" id="section-boolean">
+                <h1 class="section-title">⊕ Boolean Algebra</h1>
+                <div class="learn-box">
+                    <h2>📖 ทฤษฎี</h2>
+                    <div class="theory-content">
+                        <div class="formula-grid">
+                            <div class="formula-card"><strong>Identity</strong><br>x+0=x, x·1=x</div>
+                            <div class="formula-card"><strong>Domination</strong><br>x+1=1, x·0=0</div>
+                            <div class="formula-card"><strong>De Morgan</strong><br>(xy)'=x'+y'</div>
+                            <div class="formula-card"><strong>Absorption</strong><br>x+xy=x</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="calc-box" id="exportable-bool">
+                    <h2>🧮 Boolean Evaluator</h2>
+                    <div class="input-row">
+                        <div class="input-group"><label>ตัวแปร</label><select id="bool-vars">
+                                <option value="2">2 (x,y)</option>
+                                <option value="3">3 (x,y,z)</option>
+                            </select></div>
+                        <div class="input-group flex-grow"><label>Expression (& | ! ^)</label><input type="text"
+                                id="bool-expr" placeholder="(x & y) | (!x & z)"></div>
+                    </div>
+                    <button class="btn-calc" onclick="calcBoolean()">สร้างตาราง</button>
+                    <button class="btn-export" onclick="exportSection('exportable-bool')">📥 Export</button>
+                    <div class="result" id="result-bool"></div>
+                </div>
+            </section>
+
+            <!-- K-MAP -->
+            <section class="section" id="section-kmap">
+                <h1 class="section-title">🗺️ Karnaugh Map Solver</h1>
+                <div class="learn-box">
+                    <h2>📖 ทฤษฎี</h2>
+                    <div class="theory-content">
+                        <p><strong>Karnaugh Map</strong> ใช้ลดรูป Boolean Expression โดยจัดกลุ่ม 1
+                            ที่อยู่ติดกันเป็นกลุ่มขนาด 2ⁿ</p>
+                        <ul>
+                            <li>กลุ่ม 1 ตัว = 4 ตัวแปร, กลุ่ม 2 = 3 ตัวแปร, กลุ่ม 4 = 2 ตัวแปร, กลุ่ม 8 = 1 ตัวแปร</li>
+                            <li>เลือก Prime Implicants ที่ครอบคลุมทุก minterm</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="calc-box" id="exportable-kmap">
+                    <h2>🧮 K-Map (คลิกช่องเพื่อ toggle 0/1)</h2>
+                    <div class="input-group"><label>จำนวนตัวแปร</label><select id="kmap-vars" onchange="initKmap()">
+                            <option value="2">2 Variables (A,B)</option>
+                            <option value="3">3 Variables (A,B,C)</option>
+                            <option value="4" selected>4 Variables (A,B,C,D)</option>
+                        </select></div>
+                    <div id="kmap-grid"></div>
+                    <button class="btn-calc" onclick="solveKmap()">Solve & Minimize</button>
+                    <button class="btn-export" onclick="exportSection('exportable-kmap')">📥 Export</button>
+                    <div class="result" id="result-kmap"></div>
+                </div>
+            </section>
+
+            <!-- LOGIC GATES -->
+            <section class="section" id="section-gates">
+                <h1 class="section-title">⚡ Logic Gate Simulator</h1>
+                <div class="calc-box">
+                    <h2>🧮 Interactive Gate Builder</h2>
+                    <div class="gate-controls">
+                        <div class="input-row">
+                            <div class="input-group"><label>Input A</label><button class="toggle-btn" id="gate-input-a"
+                                    onclick="toggleGateInput('a')">0</button></div>
+                            <div class="input-group"><label>Input B</label><button class="toggle-btn" id="gate-input-b"
+                                    onclick="toggleGateInput('b')">0</button></div>
+                        </div>
+                    </div>
+                    <div class="gates-grid" id="gates-grid"></div>
+                </div>
+            </section>
+
+            <!-- NUMBER CONVERTER -->
+            <section class="section" id="section-converter">
+                <h1 class="section-title">🔄 Multi-Base Number Converter</h1>
+                <div class="calc-box" id="exportable-conv">
+                    <h2>🧮 Converter</h2>
+                    <div class="input-group"><label>ใส่ตัวเลข</label><input type="text" id="conv-input"
+                            placeholder="255" oninput="convertNumber()"></div>
+                    <div class="input-group"><label>ฐานตั้งต้น</label><select id="conv-base" onchange="convertNumber()">
+                            <option value="10" selected>Decimal (10)</option>
+                            <option value="2">Binary (2)</option>
+                            <option value="8">Octal (8)</option>
+                            <option value="16">Hexadecimal (16)</option>
+                        </select></div>
+                    <div class="result" id="result-conv"></div>
+                </div>
+            </section>
+
+            <!-- SANDBOX -->
+            <section class="section" id="section-sandbox">
+                <h1 class="section-title">🧪 Simulation Sandbox</h1>
+                <div class="sandbox-layout">
+                    <div class="sandbox-editor-panel">
+                        <div class="sandbox-toolbar">
+                            <div class="lang-tabs">
+                                <button class="lang-tab active" data-lang="javascript" onclick="switchLang('javascript')">JavaScript</button>
+                                <button class="lang-tab" data-lang="python" onclick="switchLang('python')">Python</button>
+                                <button class="lang-tab" data-lang="lua" onclick="switchLang('lua')">Lua</button>
+                            </div>
+                            <div class="sandbox-actions">
+                                <select id="sandbox-examples" onchange="loadExample()">
+                                    <option value="">📂 Examples...</option>
+                                    <optgroup label="JavaScript">
+                                        <option value="js-truth">Truth Table Verifier</option>
+                                        <option value="js-graph">Graph Builder</option>
+                                        <option value="js-prime">Prime Sieve</option>
+                                    </optgroup>
+                                    <optgroup label="Python">
+                                        <option value="py-truth">Truth Table (Python)</option>
+                                        <option value="py-combinatorics">Combinatorics</option>
+                                        <option value="py-converter">Base Converter</option>
+                                    </optgroup>
+                                    <optgroup label="Lua">
+                                        <option value="lua-graph">Graph Builder (Lua)</option>
+                                        <option value="lua-logic">Logic Simulator</option>
+                                    </optgroup>
+                                </select>
+                                <button class="btn-calc" onclick="runSandbox()" id="btn-run">▶ Run</button>
+                                <button class="btn-export" onclick="clearConsole()">🧹 Clear</button>
+                            </div>
+                        </div>
+                        <div class="editor-status">
+                            <span id="sandbox-lang-badge" class="lang-badge">JavaScript</span>
+                            <span id="sandbox-status" class="status-ready">Ready</span>
+                            <span id="pyodide-status" class="status-label"></span>
+                        </div>
+                        <div id="sandbox-editor" class="sandbox-editor"></div>
+                    </div>
+                    <div class="sandbox-output-panel">
+                        <div class="console-header">
+                            <span>📟 Console Output</span>
+                            <span class="console-line-count" id="console-count">0 lines</span>
+                        </div>
+                        <div id="sandbox-console" class="sandbox-console"></div>
+                        <div class="inspector-header">
+                            <span>🔍 State Inspector</span>
+                        </div>
+                        <div id="sandbox-inspector" class="sandbox-inspector"></div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs/loader.min.js"></script>
+    <script src="app.js"></script>
+    <script src="graph-visualizer.js"></script>
+    <script src="digital-logic.js"></script>
+    <script src="sandbox.js"></script>
+</body>
+</html>
