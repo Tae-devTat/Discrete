@@ -431,8 +431,10 @@ function registerAutoComplete() {
 
     function createProvider(langId) {
         return monaco.languages.registerCompletionItemProvider(langId, {
+            triggerCharacters: ['.', '_'],
             provideCompletionItems: function (model, position) {
                 const word = model.getWordUntilPosition(position);
+                const prefix = word && word.word ? word.word.toLowerCase() : '';
                 const range = {
                     startLineNumber: position.lineNumber,
                     endLineNumber: position.lineNumber,
@@ -440,27 +442,25 @@ function registerAutoComplete() {
                     endColumn: word.endColumn,
                 };
 
-                // Also check text before the word for dotted access (e.g., "Logic.")
-                const lineContent = model.getLineContent(position.lineNumber);
-                const textBefore = lineContent.substring(0, position.column - 1);
-
-                const suggestions = KEYWORDS.map(kw => {
-                    const icon = CAT_ICONS[kw.cat] || '📦';
-                    return {
-                        label: kw.label,
-                        kind: kw.cat === 'Utility' ? monaco.languages.CompletionItemKind.Snippet
-                            : kw.cat === 'Console' ? monaco.languages.CompletionItemKind.Method
-                            : monaco.languages.CompletionItemKind.Function,
-                        insertText: kw.insert,
-                        insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-                        documentation: {
-                            value: `**${icon} ${kw.cat}**\n\n${kw.doc}`
-                        },
-                        detail: `${icon} ${kw.cat}`,
-                        range: range,
-                        sortText: `0_${kw.cat}_${kw.label}`,
-                    };
-                });
+                const suggestions = KEYWORDS
+                    .filter(kw => !prefix || kw.label.toLowerCase().includes(prefix))
+                    .map(kw => {
+                        const icon = CAT_ICONS[kw.cat] || '📦';
+                        return {
+                            label: kw.label,
+                            kind: kw.cat === 'Utility' ? monaco.languages.CompletionItemKind.Snippet
+                                : kw.cat === 'Console' ? monaco.languages.CompletionItemKind.Method
+                                : monaco.languages.CompletionItemKind.Function,
+                            insertText: kw.insert,
+                            insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                            documentation: {
+                                value: `**${icon} ${kw.cat}**\n\n${kw.doc}`
+                            },
+                            detail: `${icon} ${kw.cat}`,
+                            range: range,
+                            sortText: `0_${kw.cat}_${kw.label}`,
+                        };
+                    });
                 return { suggestions };
             }
         });
@@ -554,7 +554,7 @@ function switchLang(lang) {
     }
 
     // Load Pyodide if Python selected
-    if (lang === 'python' && !pyodideInstance && !pyodideLoading) loadPyodide();
+    if (lang === 'python' && !pyodideInstance && !pyodideLoading) initializePyodide();
     // Load Fengari if Lua selected
     if (lang === 'lua' && !fengariLoaded) loadFengari();
 
@@ -1007,7 +1007,7 @@ async function runJS(code) {
 }
 
 // ============ PYTHON (PYODIDE) ============
-async function loadPyodide() {
+async function initializePyodide() {
     pyodideLoading = true;
     const statusEl = document.getElementById('pyodide-status');
     if (statusEl) statusEl.textContent = '⏳ Loading Python (Pyodide)...';
@@ -1019,9 +1019,10 @@ async function loadPyodide() {
         document.head.appendChild(script);
         await new Promise((resolve, reject) => { script.onload = resolve; script.onerror = reject; });
 
-        pyodideInstance = await loadPyodide({ indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.24.1/full/' });
+        pyodideInstance = await window.loadPyodide({ indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.24.1/full/' });
         if (statusEl) statusEl.textContent = '✅ Python Ready';
         logToConsole('✅ Pyodide loaded successfully!', 'success');
+        setupPythonHelpers();
     } catch (e) {
         if (statusEl) statusEl.textContent = '❌ Python load failed';
         logToConsole('❌ Failed to load Pyodide: ' + e.message, 'error');
@@ -1029,10 +1030,320 @@ async function loadPyodide() {
     pyodideLoading = false;
 }
 
+function setupPythonHelpers() {
+    if (!pyodideInstance) return;
+    pyodideInstance.runPython(`
+class Logic:
+    @staticmethod
+    def AND(a, b):
+        return bool(a and b)
+    @staticmethod
+    def OR(a, b):
+        return bool(a or b)
+    @staticmethod
+    def NOT(a):
+        return not a
+    @staticmethod
+    def NAND(a, b):
+        return not (a and b)
+    @staticmethod
+    def NOR(a, b):
+        return not (a or b)
+    @staticmethod
+    def XOR(a, b):
+        return bool(a) != bool(b)
+    @staticmethod
+    def XNOR(a, b):
+        return bool(a) == bool(b)
+    @staticmethod
+    def IMPLIES(p, q):
+        return (not p) or q
+    @staticmethod
+    def IFF(p, q):
+        return p == q
+
+class Graph:
+    nodes = []
+    edges = []
+
+    @staticmethod
+    def addNode(label=''):
+        node_id = len(Graph.nodes)
+        Graph.nodes.append({'id': node_id, 'label': label})
+        return node_id
+
+    @staticmethod
+    def addEdge(u, v):
+        Graph.edges.append((u, v))
+        return Graph.edges
+
+    @staticmethod
+    def removeNode(node_id):
+        Graph.nodes = [n for n in Graph.nodes if n['id'] != node_id]
+        Graph.edges = [(u, v) for (u, v) in Graph.edges if u != node_id and v != node_id]
+        return Graph.nodes
+
+    @staticmethod
+    def removeEdge(u, v):
+        Graph.edges = [(x, y) for (x, y) in Graph.edges if not ((x == u and y == v) or (x == v and y == u))]
+        return Graph.edges
+
+    @staticmethod
+    def adjacencyList():
+        return [{
+            'node': n['id'],
+            'label': n['label'],
+            'neighbors': [v if u == n['id'] else u for (u, v) in Graph.edges if u == n['id'] or v == n['id']]
+        } for n in Graph.nodes]
+
+    @staticmethod
+    def adjacencyMatrix():
+        size = len(Graph.nodes)
+        matrix = [[0] * size for _ in range(size)]
+        for (u, v) in Graph.edges:
+            if 0 <= u < size and 0 <= v < size:
+                matrix[u][v] = 1
+                matrix[v][u] = 1
+        return matrix
+
+    @staticmethod
+    def degree(node):
+        return sum(1 for (u, v) in Graph.edges if u == node or v == node)
+
+    @staticmethod
+    def degreeSequence():
+        return sorted([Graph.degree(i) for i in range(len(Graph.nodes))], reverse=True)
+
+    @staticmethod
+    def bfs(start):
+        visited = {start}
+        queue = [start]
+        order = []
+        while queue:
+            u = queue.pop(0)
+            order.append(u)
+            for (x, y) in Graph.edges:
+                neighbor = y if x == u else x if y == u else None
+                if neighbor is not None and neighbor not in visited:
+                    visited.add(neighbor)
+                    queue.append(neighbor)
+        return order
+
+    @staticmethod
+    def dfs(start):
+        visited = set()
+        order = []
+        def visit(u):
+            if u in visited:
+                return
+            visited.add(u)
+            order.append(u)
+            for (x, y) in Graph.edges:
+                neighbor = y if x == u else x if y == u else None
+                if neighbor is not None:
+                    visit(neighbor)
+        visit(start)
+        return order
+
+    @staticmethod
+    def isConnected():
+        return len(Graph.nodes) == 0 or len(set(Graph.bfs(0))) == len(Graph.nodes)
+
+    @staticmethod
+    def hasEulerPath():
+        odd = sum(1 for d in Graph.degreeSequence() if d % 2 != 0)
+        return Graph.isConnected() and (odd == 0 or odd == 2)
+
+    @staticmethod
+    def hasEulerCircuit():
+        return Graph.isConnected() and all(d % 2 == 0 for d in Graph.degreeSequence())
+
+    @staticmethod
+    def isTree():
+        return Graph.isConnected() and len(Graph.edges) == len(Graph.nodes) - 1
+
+    @staticmethod
+    def isBipartite():
+        color = {}
+        for node in range(len(Graph.nodes)):
+            if node in color:
+                continue
+            color[node] = 0
+            queue = [node]
+            while queue:
+                u = queue.pop(0)
+                for (x, y) in Graph.edges:
+                    neighbor = y if x == u else x if y == u else None
+                    if neighbor is None:
+                        continue
+                    if neighbor not in color:
+                        color[neighbor] = 1 - color[u]
+                        queue.append(neighbor)
+                    elif color[neighbor] == color[u]:
+                        return False
+        return True
+
+class Set:
+    @staticmethod
+    def union(A, B):
+        return list(dict.fromkeys((A or []) + (B or [])))
+    @staticmethod
+    def intersect(A, B):
+        return [x for x in (A or []) if x in (B or [])]
+    @staticmethod
+    def difference(A, B):
+        return [x for x in (A or []) if x not in (B or [])]
+    @staticmethod
+    def symmetricDiff(A, B):
+        return list(dict.fromkeys([x for x in (A or []) if x not in (B or [])] + [x for x in (B or []) if x not in (A or [])]))
+    @staticmethod
+    def cartesian(A, B):
+        return [(a, b) for a in (A or []) for b in (B or [])]
+    @staticmethod
+    def powerSet(A):
+        result = [[]]
+        for x in (A or []):
+            result += [subset + [x] for subset in result]
+        return result
+    @staticmethod
+    def isSubset(A, B):
+        return all(x in (B or []) for x in (A or []))
+    @staticmethod
+    def isSuperset(A, B):
+        return all(x in (A or []) for x in (B or []))
+    @staticmethod
+    def complement(A, U):
+        return [x for x in (U or []) if x not in (A or [])]
+
+class Comb:
+    @staticmethod
+    def factorial(n):
+        n = int(n)
+        if n < 0:
+            return None
+        result = 1
+        for i in range(2, n + 1):
+            result *= i
+        return result
+    @staticmethod
+    def permutation(n, r):
+        n = int(n)
+        r = int(r)
+        if r > n:
+            return None
+        result = 1
+        for i in range(n, n - r, -1):
+            result *= i
+        return result
+    @staticmethod
+    def combination(n, r):
+        return Comb.permutation(n, r) // Comb.factorial(r)
+    @staticmethod
+    def binomial(n):
+        return [Comb.combination(n, k) for k in range(n + 1)]
+    @staticmethod
+    def pascal(rows):
+        triangle = []
+        for i in range(rows):
+            row = [1] * (i + 1)
+            for j in range(1, i):
+                row[j] = triangle[i - 1][j - 1] + triangle[i - 1][j]
+            triangle.append(row)
+        return triangle
+    @staticmethod
+    def derangement(n):
+        n = int(n)
+        if n == 0:
+            return 1
+        if n == 1:
+            return 0
+        return (n - 1) * (Comb.derangement(n - 1) + Comb.derangement(n - 2))
+    @staticmethod
+    def catalan(n):
+        return Comb.combination(2 * n, n) // (n + 1)
+    @staticmethod
+    def stirling(n, k):
+        n = int(n)
+        k = int(k)
+        if k > n:
+            return 0
+        dp = [[0] * (k + 1) for _ in range(n + 1)]
+        dp[0][0] = 1
+        for i in range(1, n + 1):
+            for j in range(1, min(i, k) + 1):
+                dp[i][j] = j * dp[i - 1][j] + dp[i - 1][j - 1]
+        return dp[n][k]
+
+class Bool:
+    @staticmethod
+    def evaluate(expression, vars=None):
+        env = {} if vars is None else dict(vars)
+        env.update({'True': True, 'False': False, 'None': None})
+        return bool(eval(expression, {'__builtins__': {}}, env))
+    @staticmethod
+    def truthTable(expression, variables=None):
+        if variables is None:
+            variables = []
+        rows = 1 << len(variables)
+        for i in range(rows):
+            env = {variables[j]: bool((i >> (len(variables) - 1 - j)) & 1) for j in range(len(variables))}
+            print(' '.join(f"{v}={int(env[v])}" for v in variables) + ' => ' + str(int(Bool.evaluate(expression, env))))
+    @staticmethod
+    def simplify(expression):
+        return expression
+    @staticmethod
+    def deMorgan(expression):
+        return expression.replace('not(', '(not ')
+    @staticmethod
+    def minterm(index, variables=None):
+        if variables is None:
+            variables = []
+        bits = bin(index)[2:].zfill(len(variables))
+        return ' and '.join([v if bit == '1' else f'not {v}' for v, bit in zip(variables, bits)])
+    @staticmethod
+    def maxterm(index, variables=None):
+        if variables is None:
+            variables = []
+        bits = bin(index)[2:].zfill(len(variables))
+        return ' or '.join([v if bit == '0' else f'not {v}' for v, bit in zip(variables, bits)])
+
+class Convert:
+    @staticmethod
+    def toBinary(decimal):
+        return bin(int(decimal))[2:]
+    @staticmethod
+    def toOctal(decimal):
+        return oct(int(decimal))[2:]
+    @staticmethod
+    def toHex(decimal):
+        return hex(int(decimal))[2:].upper()
+    @staticmethod
+    def toDecimal(value, fromBase):
+        return int(value, int(fromBase))
+    @staticmethod
+    def baseToBase(value, fromBase, toBase):
+        dec = int(value, int(fromBase))
+        t = int(toBase)
+        if t == 2:
+            return bin(dec)[2:]
+        if t == 8:
+            return oct(dec)[2:]
+        if t == 10:
+            return str(dec)
+        if t == 16:
+            return hex(dec)[2:].upper()
+        return str(dec)
+    @staticmethod
+    def twosComplement(decimal, bits):
+        value = int(decimal) & ((1 << int(bits)) - 1)
+        return format(value, 'b').zfill(int(bits))
+`);
+}
+
 async function runPython(code) {
     if (!pyodideInstance) {
         if (pyodideLoading) { logToConsole('⏳ Pyodide is still loading, please wait...', 'warn'); return; }
-        await loadPyodide();
+        await initializePyodide();
         if (!pyodideInstance) throw new Error('Pyodide not available');
     }
 
