@@ -312,6 +312,167 @@ end
 `}
 };
 
+// ============ AUTOCOMPLETE KEYWORDS ============
+function registerAutoComplete() {
+    if (typeof monaco === 'undefined') return;
+
+    const KEYWORDS = [
+        // ── Logic & Truth Tables ──
+        { label: 'Logic.AND', insert: 'Logic.AND(${1:a}, ${2:b})', doc: 'Logical AND (∧) — returns true only if both a AND b are true', cat: 'Logic' },
+        { label: 'Logic.OR', insert: 'Logic.OR(${1:a}, ${2:b})', doc: 'Logical OR (∨) — returns true if a OR b is true', cat: 'Logic' },
+        { label: 'Logic.NOT', insert: 'Logic.NOT(${1:a})', doc: 'Logical NOT (¬) — negates the value', cat: 'Logic' },
+        { label: 'Logic.NAND', insert: 'Logic.NAND(${1:a}, ${2:b})', doc: 'Logical NAND — NOT(a AND b)', cat: 'Logic' },
+        { label: 'Logic.NOR', insert: 'Logic.NOR(${1:a}, ${2:b})', doc: 'Logical NOR — NOT(a OR b)', cat: 'Logic' },
+        { label: 'Logic.XOR', insert: 'Logic.XOR(${1:a}, ${2:b})', doc: 'Logical XOR (⊕) — true when inputs differ', cat: 'Logic' },
+        { label: 'Logic.XNOR', insert: 'Logic.XNOR(${1:a}, ${2:b})', doc: 'Logical XNOR (⊙) — true when inputs are same', cat: 'Logic' },
+        { label: 'Logic.IMPLIES', insert: 'Logic.IMPLIES(${1:p}, ${2:q})', doc: 'Implication (→) — p implies q, false only when p=T, q=F', cat: 'Logic' },
+        { label: 'Logic.IFF', insert: 'Logic.IFF(${1:p}, ${2:q})', doc: 'Biconditional (↔) — true when both values are equal', cat: 'Logic' },
+        { label: 'truthTable', insert: 'truthTable(${1:expression}, [${2:"p","q"}])', doc: 'Generate a truth table for the given expression with variables', cat: 'Logic' },
+
+        // ── Graph Theory ──
+        { label: 'Graph.addNode', insert: 'Graph.addNode(${1:label})', doc: 'Add a new vertex/node to the graph', cat: 'Graph' },
+        { label: 'Graph.addEdge', insert: 'Graph.addEdge(${1:u}, ${2:v})', doc: 'Add an undirected edge between nodes u and v', cat: 'Graph' },
+        { label: 'Graph.removeNode', insert: 'Graph.removeNode(${1:id})', doc: 'Remove a node and all its incident edges', cat: 'Graph' },
+        { label: 'Graph.removeEdge', insert: 'Graph.removeEdge(${1:u}, ${2:v})', doc: 'Remove the edge between u and v', cat: 'Graph' },
+        { label: 'Graph.adjacencyList', insert: 'Graph.adjacencyList()', doc: 'Get the adjacency list representation', cat: 'Graph' },
+        { label: 'Graph.adjacencyMatrix', insert: 'Graph.adjacencyMatrix()', doc: 'Get the adjacency matrix representation', cat: 'Graph' },
+        { label: 'Graph.degree', insert: 'Graph.degree(${1:node})', doc: 'Get the degree of a specific node', cat: 'Graph' },
+        { label: 'Graph.degreeSequence', insert: 'Graph.degreeSequence()', doc: 'Get sorted degree sequence of all nodes', cat: 'Graph' },
+        { label: 'Graph.bfs', insert: 'Graph.bfs(${1:startNode})', doc: 'Breadth-First Search traversal from start node', cat: 'Graph' },
+        { label: 'Graph.dfs', insert: 'Graph.dfs(${1:startNode})', doc: 'Depth-First Search traversal from start node', cat: 'Graph' },
+        { label: 'Graph.isConnected', insert: 'Graph.isConnected()', doc: 'Check if the graph is connected', cat: 'Graph' },
+        { label: 'Graph.hasEulerPath', insert: 'Graph.hasEulerPath()', doc: 'Check if graph has an Euler path (exactly 2 odd-degree nodes)', cat: 'Graph' },
+        { label: 'Graph.hasEulerCircuit', insert: 'Graph.hasEulerCircuit()', doc: 'Check if graph has an Euler circuit (all even degrees)', cat: 'Graph' },
+        { label: 'Graph.isTree', insert: 'Graph.isTree()', doc: 'Check if graph is a tree (connected + V-1 edges)', cat: 'Graph' },
+        { label: 'Graph.isBipartite', insert: 'Graph.isBipartite()', doc: 'Check if graph is bipartite (2-colorable)', cat: 'Graph' },
+
+        // ── Set Theory ──
+        { label: 'Set.union', insert: 'Set.union(${1:A}, ${2:B})', doc: 'A ∪ B — elements in A or B or both', cat: 'Set' },
+        { label: 'Set.intersect', insert: 'Set.intersect(${1:A}, ${2:B})', doc: 'A ∩ B — elements in both A and B', cat: 'Set' },
+        { label: 'Set.difference', insert: 'Set.difference(${1:A}, ${2:B})', doc: 'A − B — elements in A but not in B', cat: 'Set' },
+        { label: 'Set.symmetricDiff', insert: 'Set.symmetricDiff(${1:A}, ${2:B})', doc: 'A △ B — elements in A or B but not both', cat: 'Set' },
+        { label: 'Set.cartesian', insert: 'Set.cartesian(${1:A}, ${2:B})', doc: 'A × B — Cartesian product of sets', cat: 'Set' },
+        { label: 'Set.powerSet', insert: 'Set.powerSet(${1:A})', doc: 'P(A) — all subsets of A, |P(A)| = 2^|A|', cat: 'Set' },
+        { label: 'Set.isSubset', insert: 'Set.isSubset(${1:A}, ${2:B})', doc: 'A ⊆ B — check if A is a subset of B', cat: 'Set' },
+        { label: 'Set.isSuperset', insert: 'Set.isSuperset(${1:A}, ${2:B})', doc: 'A ⊇ B — check if A is a superset of B', cat: 'Set' },
+        { label: 'Set.complement', insert: 'Set.complement(${1:A}, ${2:U})', doc: "A' relative to universal set U", cat: 'Set' },
+
+        // ── Number Theory ──
+        { label: 'Math.gcd', insert: 'Math.gcd(${1:a}, ${2:b})', doc: 'Greatest Common Divisor using Euclidean Algorithm', cat: 'Number Theory' },
+        { label: 'Math.lcm', insert: 'Math.lcm(${1:a}, ${2:b})', doc: 'Least Common Multiple — |a·b| / GCD(a,b)', cat: 'Number Theory' },
+        { label: 'Math.isPrime', insert: 'Math.isPrime(${1:n})', doc: 'Check if n is a prime number', cat: 'Number Theory' },
+        { label: 'Math.primeFactors', insert: 'Math.primeFactors(${1:n})', doc: 'Get prime factorization of n', cat: 'Number Theory' },
+        { label: 'Math.eulerTotient', insert: 'Math.eulerTotient(${1:n})', doc: 'φ(n) — count of integers 1..n coprime to n', cat: 'Number Theory' },
+        { label: 'Math.modPow', insert: 'Math.modPow(${1:base}, ${2:exp}, ${3:mod})', doc: 'Modular exponentiation — base^exp mod m', cat: 'Number Theory' },
+        { label: 'Math.sieve', insert: 'Math.sieve(${1:n})', doc: 'Sieve of Eratosthenes — all primes up to n', cat: 'Number Theory' },
+        { label: 'Math.extGcd', insert: 'Math.extGcd(${1:a}, ${2:b})', doc: 'Extended Euclidean Algorithm — returns {gcd, x, y}', cat: 'Number Theory' },
+
+        // ── Combinatorics ──
+        { label: 'Comb.factorial', insert: 'Comb.factorial(${1:n})', doc: 'n! — n factorial', cat: 'Combinatorics' },
+        { label: 'Comb.permutation', insert: 'Comb.permutation(${1:n}, ${2:r})', doc: 'P(n,r) = n!/(n-r)!', cat: 'Combinatorics' },
+        { label: 'Comb.combination', insert: 'Comb.combination(${1:n}, ${2:r})', doc: 'C(n,r) = n!/[r!(n-r)!]', cat: 'Combinatorics' },
+        { label: 'Comb.binomial', insert: 'Comb.binomial(${1:n})', doc: 'Binomial expansion coefficients of (1+x)^n', cat: 'Combinatorics' },
+        { label: 'Comb.pascal', insert: 'Comb.pascal(${1:rows})', doc: "Generate Pascal's Triangle with given rows", cat: 'Combinatorics' },
+        { label: 'Comb.derangement', insert: 'Comb.derangement(${1:n})', doc: 'D(n) — number of derangements (permutations with no fixed point)', cat: 'Combinatorics' },
+        { label: 'Comb.catalan', insert: 'Comb.catalan(${1:n})', doc: 'C_n — nth Catalan number', cat: 'Combinatorics' },
+        { label: 'Comb.stirling', insert: 'Comb.stirling(${1:n}, ${2:k})', doc: 'Stirling number of the second kind S(n,k)', cat: 'Combinatorics' },
+
+        // ── Boolean Algebra ──
+        { label: 'Bool.evaluate', insert: 'Bool.evaluate("${1:expression}", {${2:x: true, y: false}})', doc: 'Evaluate a Boolean expression with given variable values', cat: 'Boolean' },
+        { label: 'Bool.truthTable', insert: 'Bool.truthTable("${1:expression}", [${2:"x","y"}])', doc: 'Generate complete truth table for Boolean expression', cat: 'Boolean' },
+        { label: 'Bool.simplify', insert: 'Bool.simplify("${1:expression}")', doc: 'Simplify Boolean expression using algebraic laws', cat: 'Boolean' },
+        { label: 'Bool.deMorgan', insert: 'Bool.deMorgan("${1:expression}")', doc: "Apply De Morgan's law: ¬(A∧B) ≡ ¬A∨¬B", cat: 'Boolean' },
+        { label: 'Bool.minterm', insert: 'Bool.minterm(${1:index}, [${2:"A","B","C"}])', doc: 'Generate minterm for given index and variables', cat: 'Boolean' },
+        { label: 'Bool.maxterm', insert: 'Bool.maxterm(${1:index}, [${2:"A","B","C"}])', doc: 'Generate maxterm for given index and variables', cat: 'Boolean' },
+
+        // ── K-Map ──
+        { label: 'KMap.solve', insert: 'KMap.solve([${1:0,1,3,5,7}], ${2:4})', doc: 'Solve K-Map with given minterms and number of variables', cat: 'K-Map' },
+        { label: 'KMap.primeImplicants', insert: 'KMap.primeImplicants([${1:minterms}], ${2:nVars})', doc: 'Find all prime implicants using Quine-McCluskey', cat: 'K-Map' },
+        { label: 'KMap.essentialPI', insert: 'KMap.essentialPI([${1:minterms}], ${2:nVars})', doc: 'Find essential prime implicants', cat: 'K-Map' },
+        { label: 'KMap.minimize', insert: 'KMap.minimize("${1:SOP_expression}")', doc: 'Minimize a Sum-of-Products Boolean expression', cat: 'K-Map' },
+
+        // ── Relations ──
+        { label: 'Relation.isReflexive', insert: 'Relation.isReflexive(${1:set}, ${2:pairs})', doc: 'Check reflexive: ∀a∈A, (a,a)∈R', cat: 'Relation' },
+        { label: 'Relation.isSymmetric', insert: 'Relation.isSymmetric(${1:pairs})', doc: 'Check symmetric: (a,b)∈R → (b,a)∈R', cat: 'Relation' },
+        { label: 'Relation.isTransitive', insert: 'Relation.isTransitive(${1:pairs})', doc: 'Check transitive: (a,b)∧(b,c)→(a,c)∈R', cat: 'Relation' },
+        { label: 'Relation.isAntisymmetric', insert: 'Relation.isAntisymmetric(${1:pairs})', doc: 'Check antisymmetric: (a,b)∧(b,a)→a=b', cat: 'Relation' },
+        { label: 'Relation.isEquivalence', insert: 'Relation.isEquivalence(${1:set}, ${2:pairs})', doc: 'Check if R is equivalence (reflexive+symmetric+transitive)', cat: 'Relation' },
+        { label: 'Relation.isPartialOrder', insert: 'Relation.isPartialOrder(${1:set}, ${2:pairs})', doc: 'Check if R is partial order (reflexive+antisymmetric+transitive)', cat: 'Relation' },
+        { label: 'Relation.closure', insert: 'Relation.closure(${1:pairs}, "${2:transitive}")', doc: 'Compute closure (reflexive / symmetric / transitive)', cat: 'Relation' },
+
+        // ── Number Converter ──
+        { label: 'Convert.toBinary', insert: 'Convert.toBinary(${1:decimal})', doc: 'Convert decimal to binary string', cat: 'Converter' },
+        { label: 'Convert.toOctal', insert: 'Convert.toOctal(${1:decimal})', doc: 'Convert decimal to octal string', cat: 'Converter' },
+        { label: 'Convert.toHex', insert: 'Convert.toHex(${1:decimal})', doc: 'Convert decimal to hexadecimal string', cat: 'Converter' },
+        { label: 'Convert.toDecimal', insert: 'Convert.toDecimal(${1:value}, ${2:fromBase})', doc: 'Convert a value from given base to decimal', cat: 'Converter' },
+        { label: 'Convert.baseToBase', insert: 'Convert.baseToBase(${1:value}, ${2:fromBase}, ${3:toBase})', doc: 'Convert between any two bases (2-16)', cat: 'Converter' },
+        { label: 'Convert.twosComplement', insert: 'Convert.twosComplement(${1:decimal}, ${2:bits})', doc: "Two's complement representation", cat: 'Converter' },
+
+        // ── Console & Utilities ──
+        { label: 'console.log', insert: 'console.log(${1:message})', doc: 'Print output to the sandbox console', cat: 'Console' },
+        { label: 'console.warn', insert: 'console.warn(${1:message})', doc: 'Print warning message to console', cat: 'Console' },
+        { label: 'console.error', insert: 'console.error(${1:message})', doc: 'Print error message to console', cat: 'Console' },
+        { label: 'inspect', insert: 'inspect({${1:key}: ${2:value}})', doc: 'Display variables in the State Inspector panel', cat: 'Console' },
+
+        // ── Common Structures ──
+        { label: 'Array.from', insert: 'Array.from({length: ${1:n}}, (_, i) => ${2:i})', doc: 'Create array of length n with mapper', cat: 'Utility' },
+        { label: 'new Set', insert: 'new Set([${1:elements}])', doc: 'Create a new Set for unique elements', cat: 'Utility' },
+        { label: 'new Map', insert: 'new Map(${1})', doc: 'Create a new Map (key-value pairs)', cat: 'Utility' },
+        { label: 'for...of', insert: 'for (const ${1:item} of ${2:iterable}) {\n\t${3}\n}', doc: 'Iterate over iterable values', cat: 'Utility' },
+        { label: 'forEach', insert: 'forEach((${1:item}, ${2:index}) => {\n\t${3}\n})', doc: 'Execute function for each element', cat: 'Utility' },
+    ];
+
+    // Category → icon mapping for visual flair
+    const CAT_ICONS = {
+        'Logic': '🔗', 'Graph': '🕸️', 'Set': '📐', 'Number Theory': '🔢',
+        'Combinatorics': '🎲', 'Boolean': '⊕', 'K-Map': '🗺️', 'Relation': '↔️',
+        'Converter': '🔄', 'Console': '📟', 'Utility': '⚙️',
+    };
+
+    function createProvider(langId) {
+        return monaco.languages.registerCompletionItemProvider(langId, {
+            triggerCharacters: ['.', '_'],
+            provideCompletionItems: function (model, position) {
+                const word = model.getWordUntilPosition(position);
+                const range = {
+                    startLineNumber: position.lineNumber,
+                    endLineNumber: position.lineNumber,
+                    startColumn: word.startColumn,
+                    endColumn: word.endColumn,
+                };
+
+                // Also check text before the word for dotted access (e.g., "Logic.")
+                const lineContent = model.getLineContent(position.lineNumber);
+                const textBefore = lineContent.substring(0, position.column - 1);
+
+                const suggestions = KEYWORDS.map(kw => {
+                    const icon = CAT_ICONS[kw.cat] || '📦';
+                    return {
+                        label: kw.label,
+                        kind: kw.cat === 'Utility' ? monaco.languages.CompletionItemKind.Snippet
+                            : kw.cat === 'Console' ? monaco.languages.CompletionItemKind.Method
+                            : monaco.languages.CompletionItemKind.Function,
+                        insertText: kw.insert,
+                        insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                        documentation: {
+                            value: `**${icon} ${kw.cat}**\n\n${kw.doc}`
+                        },
+                        detail: `${icon} ${kw.cat}`,
+                        range: range,
+                        sortText: `0_${kw.cat}_${kw.label}`,
+                    };
+                });
+                return { suggestions };
+            }
+        });
+    }
+
+    // Register for all 3 supported languages
+    createProvider('javascript');
+    createProvider('python');
+    createProvider('lua');
+}
+
 // ============ MONACO EDITOR INIT ============
 function initSandboxEditor() {
     const container = document.getElementById('sandbox-editor');
@@ -320,6 +481,9 @@ function initSandboxEditor() {
     if (typeof require !== 'undefined' && typeof require.config === 'function') {
         require.config({ paths: { vs: 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs' }});
         require(['vs/editor/editor.main'], function() {
+            // Register autocomplete before creating the editor
+            registerAutoComplete();
+
             const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
             monacoEditor = monaco.editor.create(container, {
                 value: EXAMPLES['js-truth'].code,
@@ -335,6 +499,16 @@ function initSandboxEditor() {
                 roundedSelection: true,
                 renderLineHighlight: 'line',
                 tabSize: 2,
+                suggestOnTriggerCharacters: true,
+                quickSuggestions: { other: true, comments: false, strings: false },
+                wordBasedSuggestions: 'currentDocument',
+                suggest: {
+                    showKeywords: true,
+                    showSnippets: true,
+                    showFunctions: true,
+                    preview: true,
+                    filterGraceful: true,
+                },
             });
             editorCodes.javascript = EXAMPLES['js-truth'].code;
             monacoEditor.onDidChangeModelContent(() => {
@@ -497,6 +671,335 @@ async function runJS(code) {
 
     const wrappedCode = `
         (async function(console, inspect) {
+            const Logic = {
+                AND: (a, b) => Boolean(a && b),
+                OR: (a, b) => Boolean(a || b),
+                NOT: (a) => !a,
+                NAND: (a, b) => !(a && b),
+                NOR: (a, b) => !(a || b),
+                XOR: (a, b) => Boolean(a) !== Boolean(b),
+                XNOR: (a, b) => Boolean(a) === Boolean(b),
+                IMPLIES: (p, q) => !p || q,
+                IFF: (p, q) => p === q,
+            };
+
+            const Graph = (() => {
+                const nodes = [];
+                const edges = [];
+                const addNode = (label = '') => {
+                    const id = nodes.length;
+                    nodes.push({ id, label });
+                    return id;
+                };
+                const addEdge = (u, v) => {
+                    edges.push([u, v]);
+                    return edges;
+                };
+                const removeNode = (id) => {
+                    const index = nodes.findIndex((node) => node.id === id);
+                    if (index >= 0) nodes.splice(index, 1);
+                    return nodes;
+                };
+                const removeEdge = (u, v) => {
+                    const index = edges.findIndex((edge) => (edge[0] === u && edge[1] === v) || (edge[0] === v && edge[1] === u));
+                    if (index >= 0) edges.splice(index, 1);
+                    return edges;
+                };
+                const adjacencyList = () => nodes.map((node, i) => ({
+                    node: node.id,
+                    label: node.label,
+                    neighbors: edges.reduce((list, edge) => {
+                        if (edge[0] === i) list.push(edge[1]);
+                        if (edge[1] === i) list.push(edge[0]);
+                        return list;
+                    }, []),
+                }));
+                const adjacencyMatrix = () => {
+                    const matrix = Array.from({ length: nodes.length }, () => Array(nodes.length).fill(0));
+                    edges.forEach(([u, v]) => {
+                        if (u >= 0 && v >= 0 && u < nodes.length && v < nodes.length) {
+                            matrix[u][v] = 1;
+                            matrix[v][u] = 1;
+                        }
+                    });
+                    return matrix;
+                };
+                const degree = (node) => edges.reduce((count, [u, v]) => count + ((u === node || v === node) ? 1 : 0), 0);
+                const degreeSequence = () => nodes.map((_, i) => degree(i)).sort((a, b) => b - a);
+                const bfs = (start) => {
+                    const queue = [start];
+                    const visited = new Set([start]);
+                    const order = [];
+                    while (queue.length) {
+                        const u = queue.shift();
+                        order.push(u);
+                        edges.forEach(([x, y]) => {
+                            const neighbor = x === u ? y : (y === u ? x : null);
+                            if (neighbor !== null && !visited.has(neighbor)) {
+                                visited.add(neighbor);
+                                queue.push(neighbor);
+                            }
+                        });
+                    }
+                    return order;
+                };
+                const dfs = (start) => {
+                    const visited = new Set();
+                    const order = [];
+                    const explore = (u) => {
+                        if (visited.has(u)) return;
+                        visited.add(u);
+                        order.push(u);
+                        edges.forEach(([x, y]) => {
+                            const neighbor = x === u ? y : (y === u ? x : null);
+                            if (neighbor !== null) explore(neighbor);
+                        });
+                    };
+                    explore(start);
+                    return order;
+                };
+                const isConnected = () => nodes.length === 0 || new Set(bfs(0)).size === nodes.length;
+                const hasEulerPath = () => {
+                    const oddCount = degreeSequence().filter((d) => d % 2 !== 0).length;
+                    return isConnected() && (oddCount === 0 || oddCount === 2);
+                };
+                const hasEulerCircuit = () => {
+                    const oddCount = degreeSequence().filter((d) => d % 2 !== 0).length;
+                    return isConnected() && oddCount === 0;
+                };
+                const isTree = () => isConnected() && edges.length === nodes.length - 1;
+                const isBipartite = () => {
+                    const colors = Array(nodes.length).fill(null);
+                    const queue = [];
+                    for (let i = 0; i < nodes.length; i++) {
+                        if (colors[i] !== null) continue;
+                        colors[i] = 0;
+                        queue.push(i);
+                        while (queue.length) {
+                            const u = queue.shift();
+                            edges.forEach(([x, y]) => {
+                                const neighbor = x === u ? y : (y === u ? x : null);
+                                if (neighbor === null) return;
+                                if (colors[neighbor] === null) {
+                                    colors[neighbor] = 1 - colors[u];
+                                    queue.push(neighbor);
+                                } else if (colors[neighbor] === colors[u]) {
+                                    return false;
+                                }
+                            });
+                        }
+                    }
+                    return true;
+                };
+                return {
+                    addNode,
+                    addEdge,
+                    removeNode,
+                    removeEdge,
+                    adjacencyList,
+                    adjacencyMatrix,
+                    degree,
+                    degreeSequence,
+                    bfs,
+                    dfs,
+                    isConnected,
+                    hasEulerPath,
+                    hasEulerCircuit,
+                    isTree,
+                    isBipartite,
+                };
+            })();
+
+            const Set = {
+                union: (A, B) => [...new Set([...(A || []), ...(B || [])])],
+                intersect: (A, B) => (A || []).filter((x) => (B || []).includes(x)),
+                difference: (A, B) => (A || []).filter((x) => !(B || []).includes(x)),
+                symmetricDiff: (A, B) => [...new Set([...(A || []).filter((x) => !(B || []).includes(x)), ...(B || []).filter((x) => !(A || []).includes(x))])],
+                cartesian: (A, B) => (A || []).flatMap((a) => (B || []).map((b) => [a, b])),
+                powerSet: (A) => (A || []).reduce((result, value) => result.concat(result.map((set) => [...set, value])), [[]]),
+                isSubset: (A, B) => (A || []).every((x) => (B || []).includes(x)),
+                isSuperset: (A, B) => (B || []).every((x) => (A || []).includes(x)),
+                complement: (A, U) => (U || []).filter((x) => !(A || []).includes(x)),
+            };
+
+            const Comb = {
+                factorial: (n) => {
+                    n = Number(n);
+                    if (isNaN(n) || n < 0) return NaN;
+                    let result = 1;
+                    for (let i = 2; i <= n; i++) result *= i;
+                    return result;
+                },
+                permutation: (n, r) => {
+                    n = Number(n); r = Number(r);
+                    if (isNaN(n) || isNaN(r) || r > n) return NaN;
+                    let res = 1;
+                    for (let i = n; i > n - r; i--) res *= i;
+                    return res;
+                },
+                combination: (n, r) => {
+                    n = Number(n); r = Number(r);
+                    if (isNaN(n) || isNaN(r) || r > n) return NaN;
+                    return Comb.permutation(n, r) / Comb.factorial(r);
+                },
+                binomial: (n) => {
+                    const row = [];
+                    for (let k = 0; k <= n; k++) row.push(Comb.combination(n, k));
+                    return row;
+                },
+                pascal: (rows) => {
+                    const triangle = [];
+                    for (let i = 0; i < rows; i++) {
+                        triangle[i] = [];
+                        for (let j = 0; j <= i; j++) {
+                            if (j === 0 || j === i) triangle[i][j] = 1;
+                            else triangle[i][j] = triangle[i-1][j-1] + triangle[i-1][j];
+                        }
+                    }
+                    return triangle;
+                },
+                derangement: (n) => {
+                    n = Number(n);
+                    if (n === 0) return 1;
+                    if (n === 1) return 0;
+                    return (n - 1) * (Comb.derangement(n - 1) + Comb.derangement(n - 2));
+                },
+                catalan: (n) => Comb.combination(2 * n, n) / (n + 1),
+                stirling: (n, k) => {
+                    n = Number(n); k = Number(k);
+                    if (k > n) return 0;
+                    const dp = Array.from({ length: n + 1 }, () => Array(k + 1).fill(0));
+                    dp[0][0] = 1;
+                    for (let i = 1; i <= n; i++) {
+                        for (let j = 1; j <= k; j++) {
+                            dp[i][j] = j * dp[i - 1][j] + dp[i - 1][j - 1];
+                        }
+                    }
+                    return dp[n][k];
+                },
+            };
+
+            const Bool = {
+                evaluate: (expression, vars = {}) => {
+                    const context = Object.keys(vars).map((name) => 'const ' + name + ' = ' + Boolean(vars[name]) + ';').join('\n');
+                    return eval(context + '\nBoolean(' + expression + ')');
+                },
+                truthTable: (expression, variables = []) => {
+                    const rows = 1 << variables.length;
+                    for (let i = 0; i < rows; i++) {
+                        const env = {};
+                        variables.forEach((v, j) => env[v] = Boolean((i >> (variables.length - 1 - j)) & 1));
+                        const line = variables.map((v) => v + '=' + Number(env[v])).join(' ');
+                        console.log(line + ' => ' + Number(Bool.evaluate(expression, env)));
+                    }
+                },
+                simplify: (expression) => expression,
+                deMorgan: (expression) => expression.replace(/not\s*\(([^)]+)\)/gi, '(not $1)'),
+                minterm: (index, variables = []) => {
+                    const bits = index.toString(2).padStart(variables.length, '0');
+                    return variables.map((v, i) => (bits[i] === '1' ? v : 'not ' + v)).join(' and ');
+                },
+                maxterm: (index, variables = []) => {
+                    const bits = index.toString(2).padStart(variables.length, '0');
+                    return variables.map((v, i) => (bits[i] === '0' ? v : 'not ' + v)).join(' or ');
+                },
+            };
+
+            const Convert = {
+                toBinary: (decimal) => Number(decimal).toString(2),
+                toOctal: (decimal) => Number(decimal).toString(8),
+                toHex: (decimal) => Number(decimal).toString(16).toUpperCase(),
+                toDecimal: (value, fromBase) => parseInt(value, fromBase),
+                baseToBase: (value, fromBase, toBase) => parseInt(value, fromBase).toString(toBase),
+                twosComplement: (decimal, bits) => {
+                    const num = Number(decimal);
+                    const mask = (1 << bits) - 1;
+                    return (num & mask).toString(2).padStart(bits, '0');
+                },
+            };
+
+            const KMap = {
+                solve: (minterms, nVars) => ({ minterms, vars: nVars }),
+                primeImplicants: (minterms, nVars) => [],
+                essentialPI: (minterms, nVars) => [],
+                minimize: (expression) => expression,
+            };
+
+            const Relation = {
+                isReflexive: (set, pairs) => (set || []).every((a) => (pairs || []).some(([x, y]) => x === a && y === a)),
+                isSymmetric: (pairs) => (pairs || []).every(([x, y]) => (pairs || []).some(([u, v]) => u === y && v === x)),
+                isTransitive: (pairs) => (pairs || []).every(([x, y]) => (pairs || []).every(([u, v]) => u === y ? (pairs || []).some(([p, q]) => p === x && q === v) : true)),
+                isAntisymmetric: (pairs) => (pairs || []).every(([x, y]) => x === y || !(pairs || []).some(([u, v]) => u === y && v === x)),
+                isEquivalence: (set, pairs) => Relation.isReflexive(set, pairs) && Relation.isSymmetric(pairs) && Relation.isTransitive(pairs),
+                isPartialOrder: (set, pairs) => Relation.isReflexive(set, pairs) && Relation.isAntisymmetric(pairs) && Relation.isTransitive(pairs),
+                closure: (pairs, type) => pairs,
+            };
+
+            Math.gcd = (a, b) => {
+                a = Math.abs(a);
+                b = Math.abs(b);
+                while (b) [a, b] = [b, a % b];
+                return a;
+            };
+            Math.lcm = (a, b) => Math.abs(a * b) / Math.gcd(a, b);
+            Math.isPrime = (n) => {
+                n = Number(n);
+                if (n < 2) return false;
+                for (let i = 2; i * i <= n; i++) if (n % i === 0) return false;
+                return true;
+            };
+            Math.primeFactors = (n) => {
+                n = Math.abs(Number(n));
+                const factors = [];
+                for (let i = 2; i * i <= n; i++) {
+                    while (n % i === 0) {
+                        factors.push(i);
+                        n /= i;
+                    }
+                }
+                if (n > 1) factors.push(n);
+                return factors;
+            };
+            Math.eulerTotient = (n) => {
+                n = Math.abs(Number(n));
+                let result = n;
+                for (let p = 2; p * p <= n; p++) {
+                    if (n % p === 0) {
+                        while (n % p === 0) n /= p;
+                        result -= result / p;
+                    }
+                }
+                if (n > 1) result -= result / n;
+                return Math.round(result);
+            };
+            Math.modPow = (base, exp, mod) => {
+                base = BigInt(base);
+                exp = BigInt(exp);
+                mod = BigInt(mod);
+                let result = 1n;
+                base %= mod;
+                while (exp > 0) {
+                    if (exp % 2n === 1n) result = (result * base) % mod;
+                    exp /= 2n;
+                    base = (base * base) % mod;
+                }
+                return Number(result);
+            };
+            Math.sieve = (n) => {
+                n = Number(n);
+                const isPrime = Array(n + 1).fill(true);
+                isPrime[0] = isPrime[1] = false;
+                for (let i = 2; i * i <= n; i++) if (isPrime[i]) for (let j = i * i; j <= n; j += i) isPrime[j] = false;
+                return isPrime.map((v, i) => v ? i : -1).filter((x) => x > 0);
+            };
+            Math.extGcd = (a, b) => {
+                a = Number(a);
+                b = Number(b);
+                if (b === 0) return { gcd: a, x: 1, y: 0 };
+                const { gcd, x: x1, y: y1 } = Math.extGcd(b, a % b);
+                return { gcd, x: y1, y: x1 - Math.floor(a / b) * y1 };
+            };
+
             ${code}
         })
     `;
