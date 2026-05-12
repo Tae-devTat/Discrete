@@ -431,7 +431,6 @@ function registerAutoComplete() {
 
     function createProvider(langId) {
         return monaco.languages.registerCompletionItemProvider(langId, {
-            triggerCharacters: ['.', '_'],
             provideCompletionItems: function (model, position) {
                 const word = model.getWordUntilPosition(position);
                 const range = {
