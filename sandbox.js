@@ -479,6 +479,19 @@ function initSandboxEditor() {
     if (!container) return;
 
     if (typeof require !== 'undefined' && typeof require.config === 'function') {
+        window.MonacoEnvironment = window.MonacoEnvironment || {};
+        window.MonacoEnvironment.getWorkerUrl = function(workerId, label) {
+            const baseUrl = 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs';
+            const workerScript = label === 'json' ? 'vs/language/json/jsonWorker' :
+                                 label === 'css' || label === 'scss' ? 'vs/language/css/cssWorker' :
+                                 label === 'html' || label === 'handlebars' || label === 'razor' ? 'vs/language/html/htmlWorker' :
+                                 label === 'typescript' || label === 'javascript' ? 'vs/language/typescript/tsWorker' :
+                                 'vs/editor/editor.worker';
+            return 'data:text/javascript;charset=utf-8,' + encodeURIComponent(
+                "self.MonacoEnvironment = { baseUrl: '" + baseUrl + "' }; importScripts('" + baseUrl + "/" + workerScript + ".js');"
+            );
+        };
+
         require.config({ paths: { vs: 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs' }});
         require(['vs/editor/editor.main'], function() {
             // Register autocomplete before creating the editor
