@@ -438,13 +438,14 @@ function registerAutoComplete() {
                 const range = {
                     startLineNumber: position.lineNumber,
                     endLineNumber: position.lineNumber,
-                    startColumn: word.startColumn,
-                    endColumn: word.endColumn,
+                    startColumn: word ? word.startColumn : position.column,
+                    endColumn: word ? word.endColumn : position.column,
                 };
 
-                const suggestions = KEYWORDS
-                    .filter(kw => !prefix || kw.label.toLowerCase().includes(prefix))
-                    .map(kw => {
+                const suggestions = (prefix
+                    ? KEYWORDS.filter(kw => kw.label.toLowerCase().includes(prefix))
+                    : KEYWORDS
+                ).map(kw => {
                         const icon = CAT_ICONS[kw.cat] || '📦';
                         return {
                             label: kw.label,
@@ -499,7 +500,8 @@ function initSandboxEditor() {
                 renderLineHighlight: 'line',
                 tabSize: 2,
                 suggestOnTriggerCharacters: true,
-                quickSuggestions: { other: true, comments: false, strings: false },
+                quickSuggestions: { other: true, comments: true, strings: true },
+                quickSuggestionsDelay: 50,
                 wordBasedSuggestions: 'currentDocument',
                 suggest: {
                     showKeywords: true,
